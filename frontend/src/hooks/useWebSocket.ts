@@ -10,14 +10,20 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const reconnectDelayRef = useRef(1000); // Start with 1 second delay
+  const reconnectDelayRef = useRef(1000);
+  const onEventReceivedRef = useRef(onEventReceived);
+
+  // Keep ref updated to avoid triggering reconnection on callback changes
+  useEffect(() => {
+    onEventReceivedRef.current = onEventReceived;
+  }, [onEventReceived]);
 
   const connect = useCallback(() => {
     if (!userId) return;
 
-    // Clean up existing connections
-    if (socketRef.current) {
-      socketRef.current.close();
+    // Avoid duplicate connections
+    if (socketRef.current && (socketRef.current.readyState === WebSocket.OPEN || socketRef.current.readyState === WebSocket.CONNECTING)) {
+      return;
     }
 
     const wsUrl = `${WS_BASE_URL}/ws/${userId}`;
@@ -28,13 +34,15 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
     socket.onopen = () => {
       console.log("WebSocket connected");
       setIsConnected(true);
-      reconnectDelayRef.current = 1000; // Reset delay on successful connection
+      reconnectDelayRef.current = 1000;
     };
 
     socket.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
-        onEventReceived(payload);
+        if (onEventReceivedRef.current) {
+          onEventReceivedRef.current(payload);
+        }
       } catch (err) {
         console.warn("Error parsing WebSocket message:", err);
       }
@@ -43,13 +51,13 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
     socket.onclose = (event) => {
       console.log("WebSocket disconnected:", event.reason);
       setIsConnected(false);
-      
-      // Auto-reconnect if not closed cleanly
+      socketRef.current = null;
+
       if (userId) {
-        const delay = Math.min(reconnectDelayRef.current * 2, 30000); // Cap backoff at 30 seconds
+        const delay = Math.min(reconnectDelayRef.current * 2, 10000);
         reconnectDelayRef.current = delay;
         console.log(`Reconnecting in ${delay}ms...`);
-        
+
         reconnectTimeoutRef.current = setTimeout(() => {
           connect();
         }, delay);
@@ -59,9 +67,18 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
     socket.onerror = (error) => {
       console.warn("WebSocket connection warning:", error);
     };
-  }, [userId, onEventReceived]);
+  }, [userId]);
 
   useEffect(() => {
+    if (!userId) {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+      setIsConnected(false);
+      return;
+    }
+
     connect();
 
     return () => {
@@ -70,6 +87,7 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
       }
       if (socketRef.current) {
         socketRef.current.close();
+        socketRef.current = null;
       }
     };
   }, [userId, connect]);
