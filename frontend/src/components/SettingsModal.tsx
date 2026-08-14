@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config";
 
 interface User {
   id: string;
@@ -49,7 +50,7 @@ export function SettingsModal({ currentUser, onClose, onLogout, onProfileUpdated
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/me", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

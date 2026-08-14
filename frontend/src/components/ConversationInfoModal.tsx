@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { API_BASE_URL } from "../config";
 
 interface User {
   id: string;
@@ -57,7 +58,7 @@ export function ConversationInfoModal({
     setError(null);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/conversations/${conversation.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/conversations/${conversation.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +87,7 @@ export function ConversationInfoModal({
     setSuccess(null);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/conversations/${conversation.id}/members`, {
+      const res = await fetch(`${API_BASE_URL}/api/conversations/${conversation.id}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -114,7 +115,7 @@ export function ConversationInfoModal({
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/conversations/${conversation.id}/members/${userId}`,
+        `${API_BASE_URL}/api/conversations/${conversation.id}/members/${userId}`,
         {
           method: "DELETE",
           headers: {

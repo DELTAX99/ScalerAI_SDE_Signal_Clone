@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { WS_BASE_URL } from "../config";
 
 interface UseWebSocketProps {
   userId: string | null;
@@ -19,7 +20,7 @@ export function useWebSocket({ userId, onEventReceived }: UseWebSocketProps) {
       socketRef.current.close();
     }
 
-    const wsUrl = `ws://localhost:8000/ws/${userId}`;
+    const wsUrl = `${WS_BASE_URL}/ws/${userId}`;
     console.log("Connecting to WebSocket:", wsUrl);
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;

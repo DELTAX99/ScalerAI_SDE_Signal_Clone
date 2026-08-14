@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
+import { API_BASE_URL } from "../config";
 import { AuthModal } from "../components/AuthModal";
 import { CreateChatModal } from "../components/CreateChatModal";
 import { SettingsModal } from "../components/SettingsModal";
@@ -144,7 +145,7 @@ export default function Home() {
   const fetchConversations = useCallback(async () => {
     if (!currentUser) return;
     try {
-      const res = await fetch("http://localhost:8000/api/conversations", {
+      const res = await fetch(`${API_BASE_URL}/api/conversations`, {
         headers: { "X-User-Id": currentUser.id },
       });
       if (res.ok) {
@@ -168,7 +169,7 @@ export default function Home() {
   const fetchMessages = useCallback(async (convId: string) => {
     if (!currentUser) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/conversations/${convId}/messages`, {
+      const res = await fetch(`${API_BASE_URL}/api/conversations/${convId}/messages`, {
         headers: { "X-User-Id": currentUser.id },
       });
       if (res.ok) {
@@ -425,7 +426,7 @@ export default function Home() {
     });
 
     try {
-      const res = await fetch(`http://localhost:8000/api/conversations/${activeConv.id}/messages`, {
+      const res = await fetch(`${API_BASE_URL}/api/conversations/${activeConv.id}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -463,7 +464,7 @@ export default function Home() {
     setLoadingState(true);
     try {
       // 1. Upload file
-      const uploadRes = await fetch(`http://localhost:8000/api/conversations/${activeConv.id}/upload`, {
+      const uploadRes = await fetch(`${API_BASE_URL}/api/conversations/${activeConv.id}/upload`, {
         method: "POST",
         headers: { "X-User-Id": currentUser.id },
         body: formData,
@@ -481,7 +482,7 @@ export default function Home() {
         reply_to_id: replyTarget ? replyTarget.id : null,
       };
 
-      const msgRes = await fetch(`http://localhost:8000/api/conversations/${activeConv.id}/messages`, {
+      const msgRes = await fetch(`${API_BASE_URL}/api/conversations/${activeConv.id}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -511,7 +512,7 @@ export default function Home() {
   const handleToggleReaction = async (messageId: string, emoji: string) => {
     if (!currentUser) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/messages/${messageId}/reactions`, {
+      const res = await fetch(`${API_BASE_URL}/api/messages/${messageId}/reactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -905,13 +906,13 @@ export default function Home() {
                             <div className="attachment-preview-box">
                               {msg.attachment_url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) ? (
                                 <img
-                                  src={`http://localhost:8000${msg.attachment_url}`}
+                                  src={`${API_BASE_URL}${msg.attachment_url}`}
                                   alt={msg.attachment_name || "Attachment"}
                                   className="attachment-image"
                                 />
                               ) : (
                                 <a
-                                  href={`http://localhost:8000${msg.attachment_url}`}
+                                  href={`${API_BASE_URL}${msg.attachment_url}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="attachment-file-box"

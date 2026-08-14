@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config";
 
 interface User {
   id: string;
@@ -27,7 +28,7 @@ export function CreateChatModal({ currentUser, onClose, onChatCreated }: CreateC
 
   const fetchContacts = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/contacts", {
+      const res = await fetch(`${API_BASE_URL}/api/contacts`, {
         headers: { "X-User-Id": currentUser.id },
       });
       if (res.ok) {
@@ -52,7 +53,7 @@ export function CreateChatModal({ currentUser, onClose, onChatCreated }: CreateC
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/contacts", {
+      const res = await fetch(`${API_BASE_URL}/api/contacts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +87,7 @@ export function CreateChatModal({ currentUser, onClose, onChatCreated }: CreateC
     if (!isGroupMode && targetUser) {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:8000/api/conversations", {
+        const res = await fetch(`${API_BASE_URL}/api/conversations`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -125,7 +126,7 @@ export function CreateChatModal({ currentUser, onClose, onChatCreated }: CreateC
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/conversations", {
+      const res = await fetch(`${API_BASE_URL}/api/conversations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
