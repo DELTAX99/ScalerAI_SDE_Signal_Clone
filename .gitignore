@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!yarn.lock
+
+# Python Virtual Environments & Caches
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases & Uploads
+*.db
+*.sqlite3
+uploads/
+
+# Next.js & Frontend Build Outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+dist/
+
+# Logs & Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables
+.env
+.env*.local
+.env.development
+.env.production
+
+# IDE & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
