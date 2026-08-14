@@ -10,9 +10,10 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session, joinedload
 
 # Local imports (running inside /backend directory)
-from database import get_db, init_db
+from database import get_db, init_db, SessionLocal
 import models
 import schemas
+from seed import seed_db
 from websocket_manager import manager
 
 app = FastAPI(title="Signal Clone API", version="1.0.0")
@@ -34,6 +35,15 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 @app.on_event("startup")
 def on_startup():
     init_db()
+    db = SessionLocal()
+    try:
+        if db.query(models.User).count() == 0:
+            print("Database empty. Auto-seeding initial users...")
+            seed_db()
+    except Exception as e:
+        print("Error during auto-seeding check:", e)
+    finally:
+        db.close()
 
 # Helper to verify auth header and get current user
 def get_current_user(x_user_id: Optional[str] = Header(None), db: Session = Depends(get_db)) -> models.User:
